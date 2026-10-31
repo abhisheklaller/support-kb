@@ -1,0 +1,63 @@
+---
+layout: runbook
+title: '#4471 split · three problems under one ticket'
+owner: abhisheklaller
+status: open
+reviewed: 2026-10-31
+signature: v1.eyJzdWIiOiI0MjgiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzQ1OTg2NiwiZXhwIjoxNzkzNTQ2MjY2fQ.TG46ujpsr5ocKEh5UL6-35c357KfYoqUvKS4lgEBW-k
+---
+
+<script>
+  import SplitTable from '#lib/kb/SplitTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/abhisheklaller/support-kb/issues';
+  const issues = {
+    parser: { n: 1, href: `${repo}/1` },
+    hint: { n: 2, href: `${repo}/2` },
+    'one-day-move': { n: 3, href: `${repo}/3` },
+  };
+</script>
+
+[#4471](/kb/incidents/4471) was merged by subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject))
+and marked known: one bug, one fix queued. Read by cause instead of by subject, it holds three
+problems. The queued parser fix closes only the first one.
+
+<Callout kind="warn">
+Not one issue. Each problem below has its own ticket, so the parser fix does not close the other two.
+</Callout>
+
+## The split
+
+<SplitTable ticket={4471} {issues} />
+
+## The three problems
+
+**`parser`: the shared parser reads every date month first.** Day-first tenants (every tenant on
+file) get day and month swapped: a 7 April booking goes out on 4 July. This is the bug #4471
+describes, and the fix that is queued.
+
+**`hint`: the booking-v3 form tells day-first people to type month first.** Its date field shows
+`MM/DD/YYYY`, people type what it says, and the form reads the date the tenant's way. The swap
+looks the same as `parser`, but the cause is the form's hint, so the parser fix does not touch it.
+Only form reports from tenants on booking-v3 have it. Intake tags it from the reporter's browser,
+which is often wrong; the table counts by tenant and channel ([causes.ts](/kb/triage/dedupe)).
+
+**`one-day-move`: the date moves by one day, not a swap.** "Invite says Tuesday 12 May. Calendar says
+Monday 11 May." "Client in Lisbon got Tuesday. Client in Toronto got Monday." "Every booking in June
+is one day off."
+Nothing is swapped, so neither fix covers it. The pattern points at time zones or the change to
+summer time. #4471's table files these under `parser` by tenant and keeps them in a footnote, so no
+ticket ever tracked them.
+
+## How this was counted
+
+- Every report merged into #4471, once per report id.
+- `parser` and `hint`: tenant locale and booking form from the tenant directory, plus the channel
+  the report came in by (`causes.ts`). Not the intake tag.
+- `one-day-move`: the reports the desk read as a one-day move (`desk-notes.json`), checked against
+  their bodies.
+- Every number on this page is computed at render time from the export in `src/lib/data`.
+
+<RenderStamp {signature} />
