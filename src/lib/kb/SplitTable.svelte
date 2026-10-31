@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { exportRows, mistagged, splitTicket, type Problem } from '#lib/kb/split';
+  import { exportRows, mergedInto, mistagged, splitTicket, type Problem } from '#lib/kb/split';
 
   // `issues`: the ticket filed for each problem, as a link. A problem with no ticket shows that.
   let { ticket, issues = {} }: { ticket: number; issues?: Partial<Record<Problem, { n: number; href: string }>> } =
     $props();
 
   const groups = $derived(splitTicket(ticket));
-  const total = $derived(groups.reduce((n, g) => n + g.reports.length, 0));
+  const total = $derived(mergedInto(ticket).length);
+  const moves = $derived(groups.find((g) => g.problem === 'one-day-move')?.reports.length ?? 0);
   const rows = exportRows();
   const fmt = (t: Record<string, number>) =>
     Object.entries(t)
@@ -45,7 +46,8 @@
 </table>
 
 <p class="note">
-  Counted from {rows.unique} unique reports; the export holds {rows.rows} rows because its pages overlap.
+  Counted the desk's way: each report under the cause it is filed by, so the {moves} one-day moves are also
+  inside <code>parser</code>. Counted from {rows.unique} unique reports; the export holds {rows.rows} rows because its pages overlap.
   {mistagged(ticket)} reports carry an intake tag that names a different problem.
 </p>
 

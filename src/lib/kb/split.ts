@@ -40,10 +40,18 @@ export function mergedInto(ticket: number): Report[] {
 
 const tally = (xs: string[]) => xs.reduce<Record<string, number>>((n, x) => ({ ...n, [x]: (n[x] ?? 0) + 1 }), {});
 
+// Counted the desk's way (CauseTable): every report under the cause causes.ts files it by, so the
+// one-day moves stay inside `parser`, where they are filed. `one-day-move` counts the same reports again.
+export function filedUnder(r: Report): Problem {
+  return causeOf(r, tenantOf(r)) ?? 'unplaced';
+}
+
 export function splitTicket(ticket: number): ProblemGroup[] {
   const merged = mergedInto(ticket);
   return PROBLEMS.map((problem) => {
-    const rs = merged.filter((r) => problemOf(r) === problem);
+    const rs = merged.filter((r) =>
+      problem === 'one-day-move' ? problemOf(r) === problem : filedUnder(r) === problem,
+    );
     const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
     return {
       problem,
