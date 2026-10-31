@@ -25,8 +25,17 @@ and marked known: one bug, one fix queued. Read by cause instead of by subject, 
 problems. The queued parser fix closes only the first one.
 
 <Callout kind="warn">
-Not one issue. Each problem below has its own ticket, so the parser fix does not close the other two.
+#4471 closed on 5 October: parser fixed, hint won't fix (booking-v3 retired). The one-day move is
+still open: neither change touches it.
 </Callout>
+
+## Where each problem stands
+
+| problem | ticket | state | engineering update, #4471 closed 05 oct |
+|---|---|---|---|
+| `parser` | [#1](https://github.com/abhisheklaller/support-kb/issues/1) | closed · fixed | `fix(dates): parse dd/mm for eu locales` |
+| `hint` | [#2](https://github.com/abhisheklaller/support-kb/issues/2) | closed · won't fix | booking-v3 form retired |
+| `one-day-move` | [#3](https://github.com/abhisheklaller/support-kb/issues/3) | **open** | not in the update |
 
 ## The split
 
@@ -36,11 +45,11 @@ Not one issue. Each problem below has its own ticket, so the parser fix does not
 
 **`parser`: the shared parser reads every date month first.** Day-first tenants (every tenant on
 file) get day and month swapped: a 7 April booking goes out on 4 July. This is the bug #4471
-describes, and the fix that is queued.
+describes, and the one engineering fixed (`fix(dates): parse dd/mm for eu locales`).
 
 **`hint`: the booking-v3 form tells day-first people to type month first.** Its date field shows
 `MM/DD/YYYY`, people type what it says, and the form reads the date the tenant's way. The swap
-looks the same as `parser`, but the cause is the form's hint, so the parser fix does not touch it.
+looks the same as `parser`, but the cause is the form's hint, so the parser fix does not touch it. Engineering won't fix it: the booking-v3 form is retired.
 Only form reports from tenants on booking-v3 have it. Intake tags it from the reporter's browser,
 which is often wrong; the table counts by tenant and channel ([causes.ts](/kb/triage/dedupe)).
 
@@ -49,7 +58,7 @@ Monday 11 May." "Client in Lisbon got Tuesday. Client in Toronto got Monday." "E
 is one day off."
 Nothing is swapped, so neither fix covers it. The pattern points at time zones or the change to
 summer time. #4471's table files these under `parser` by tenant and keeps them in a footnote, so no
-ticket ever tracked them.
+ticket ever tracked them. #4471 is closed, and this problem is still open in #3.
 
 ## How this was counted
 
